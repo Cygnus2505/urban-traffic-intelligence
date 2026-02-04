@@ -104,7 +104,7 @@ class TrafficDataPreprocessor:
         
         return df
     
-    def _add_lag_features(self, df: pd.DataFrame, lags: List[int] = [1, 2, 3, 24, 168]) -> pd.DataFrame:
+    def _add_lag_features(self, df: pd.DataFrame, lags: Optional[List[int]] = None) -> pd.DataFrame:
         """Add lag features for time series prediction.
         
         Args:
@@ -114,6 +114,9 @@ class TrafficDataPreprocessor:
         Returns:
             DataFrame with lag features
         """
+        if lags is None:
+            lags = [1, 2, 3, 24, 168]
+        
         if 'speed' not in df.columns:
             return df
         
@@ -126,7 +129,7 @@ class TrafficDataPreprocessor:
         
         return df
     
-    def _add_rolling_features(self, df: pd.DataFrame, windows: List[int] = [3, 6, 12, 24]) -> pd.DataFrame:
+    def _add_rolling_features(self, df: pd.DataFrame, windows: Optional[List[int]] = None) -> pd.DataFrame:
         """Add rolling statistics features.
         
         Args:
@@ -136,6 +139,9 @@ class TrafficDataPreprocessor:
         Returns:
             DataFrame with rolling features
         """
+        if windows is None:
+            windows = [3, 6, 12, 24]
+        
         if 'speed' not in df.columns:
             return df
         
