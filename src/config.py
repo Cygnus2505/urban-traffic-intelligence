@@ -34,6 +34,7 @@ class Config:
     TOP_K_RETRIEVAL = 5
     CHUNK_SIZE = 500
     CHUNK_OVERLAP = 50
+    MAX_EXPLANATION_CONTENT_LENGTH = 200  # Character limit for context snippets
     
     # Forecasting Configuration
     FORECAST_HORIZON = 24  # hours
@@ -46,6 +47,7 @@ class Config:
     RUSH_HOUR_MORNING = [7, 8, 9]
     RUSH_HOUR_EVENING = [16, 17, 18]
     RUSH_HOURS = [7, 8, 9, 16, 17, 18]
+    WEEKDAY_COUNT = 5  # Monday (0) through Friday (4)
     
     # Data sources
     CHICAGO_TRAFFIC_API = "https://data.cityofchicago.org/resource/8v9j-bter.json"

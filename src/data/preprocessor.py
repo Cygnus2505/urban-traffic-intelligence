@@ -109,12 +109,13 @@ class TrafficDataPreprocessor:
         
         Args:
             df: DataFrame with time series data
-            lags: List of lag periods to create
+            lags: List of lag periods to create (in hours)
             
         Returns:
             DataFrame with lag features
         """
         if lags is None:
+            # Default lags: 1hr, 2hr, 3hr, 1 day (24hr), 1 week (168hr)
             lags = [1, 2, 3, 24, 168]
         
         if 'speed' not in df.columns:
@@ -134,12 +135,13 @@ class TrafficDataPreprocessor:
         
         Args:
             df: DataFrame with time series data
-            windows: List of window sizes for rolling calculations
+            windows: List of window sizes for rolling calculations (in hours)
             
         Returns:
             DataFrame with rolling features
         """
         if windows is None:
+            # Default windows: 3hr, 6hr, 12hr, 24hr (1 day)
             windows = [3, 6, 12, 24]
         
         if 'speed' not in df.columns:

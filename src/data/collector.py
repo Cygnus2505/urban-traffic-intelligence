@@ -104,7 +104,7 @@ class ChicagoTrafficCollector:
                 base_traffic = 50 + 30 * np.sin((hour - 6) * np.pi / 12)
                 
                 # Weekday vs weekend
-                weekday_factor = 1.3 if day_of_week < 5 else 0.7
+                weekday_factor = 1.3 if day_of_week < Config.WEEKDAY_COUNT else 0.7
                 
                 # Rush hour peaks
                 rush_hour_factor = 1.0

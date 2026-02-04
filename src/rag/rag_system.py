@@ -169,7 +169,8 @@ class TrafficRAGSystem:
         if relevant_docs:
             explanation_parts.append("\nRelevant insights:")
             for doc in relevant_docs[:2]:
-                explanation_parts.append(f"- {doc['content'][:200]}...")
+                content_preview = doc['content'][:Config.MAX_EXPLANATION_CONTENT_LENGTH]
+                explanation_parts.append(f"- {content_preview}...")
         
         return " ".join(explanation_parts)
     
