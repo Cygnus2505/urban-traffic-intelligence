@@ -2,7 +2,7 @@
 
 A production-grade ML system that combines **RAG (Retrieval-Augmented Generation)** and **predictive models** to provide traffic forecasting, incident analysis, and explainable insights for Chicago.
 
-## 🎯 Features
+##  Features
 
 - **Ask Questions (RAG)**: Query traffic patterns with natural language
   - "Why is congestion high near downtown today?"
@@ -18,7 +18,7 @@ A production-grade ML system that combines **RAG (Retrieval-Augmented Generation
   - RAG quality metrics (hallucination rate, citation coverage)
   - System health dashboards
 
-## 🏗️ Architecture
+##  Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -58,7 +58,7 @@ A production-grade ML system that combines **RAG (Retrieval-Augmented Generation
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Component | Technology |
 |-----------|------------|
@@ -76,7 +76,7 @@ A production-grade ML system that combines **RAG (Retrieval-Augmented Generation
 | Containerization | Docker |
 | CI/CD | GitHub Actions |
 
-## 📦 Data Sources
+##  Data Sources
 
 | Source | Type | Description |
 |--------|------|-------------|
@@ -85,7 +85,7 @@ A production-grade ML system that combines **RAG (Retrieval-Augmented Generation
 | Road Construction | Structured + Text | Active roadwork permits |
 | OpenWeatherMap | Structured | Current + forecast weather |
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 
@@ -134,7 +134,7 @@ docker-compose exec api python -m src.ingestion.pipeline --days 7
 | Grafana | http://localhost:3000 |
 | Prometheus | http://localhost:9090 |
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 urban-traffic-intelligence/
@@ -175,7 +175,7 @@ urban-traffic-intelligence/
 └── requirements.txt
 ```
 
-## 🔧 Development
+##  Development
 
 ### Local Setup (without Docker)
 
@@ -217,7 +217,7 @@ python -m src.ingestion.pipeline --skip-weather --skip-construction
 python -m src.ingestion.pipeline --synthetic-weather
 ```
 
-## 📊 API Endpoints
+##  API Endpoints
 
 ### RAG
 
@@ -244,7 +244,7 @@ curl -X POST http://localhost:8000/predict \
 curl "http://localhost:8000/charts/zone?zone_id=5&days=30"
 ```
 
-## 🎓 Learning Outcomes
+##  Learning Outcomes
 
 Building this project teaches:
 
@@ -254,10 +254,10 @@ Building this project teaches:
 - **Production ML**: API design, monitoring, drift detection
 - **DevOps**: Docker, CI/CD, infrastructure as code
 
-## 📝 License
+##  License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
