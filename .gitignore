@@ -36,14 +36,14 @@ ENV/
 # Environment variables
 .env
 
-# Data files
-data/
+# Data files (but not source code modules)
+/data/
 *.csv
 *.json
 !config/*.json
 
-# Model files
-models/
+# Model files (but not source code modules)
+/models/
 *.pth
 *.pt
 *.h5
