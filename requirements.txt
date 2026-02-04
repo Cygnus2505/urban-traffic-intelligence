@@ -1,0 +1,55 @@
+# Core
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+python-dotenv==1.0.0
+
+# Database
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+asyncpg==0.29.0
+
+# Data Processing
+pandas==2.1.4
+numpy==1.26.3
+pyarrow==14.0.2
+requests==2.31.0
+
+# ML/Forecasting
+scikit-learn==1.4.0
+xgboost==2.0.3
+lightgbm==4.2.0
+mlflow==2.10.0
+
+# Vector DB & Embeddings
+qdrant-client==1.7.0
+sentence-transformers==2.2.2
+openai==1.10.0
+
+# LLM & RAG
+langchain==0.1.4
+langchain-openai==0.0.3
+tiktoken==0.5.2
+
+# Orchestration
+prefect==2.14.0
+
+# Monitoring
+prometheus-client==0.19.0
+evidently==0.4.13
+
+# Dashboard
+streamlit==1.30.0
+plotly==5.18.0
+altair==5.2.0
+
+# Testing
+pytest==7.4.4
+pytest-asyncio==0.23.3
+httpx==0.26.0
+
+# Utilities
+loguru==0.7.2
+tenacity==8.2.3
+python-dateutil==2.8.2
