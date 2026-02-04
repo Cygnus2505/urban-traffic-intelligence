@@ -157,9 +157,9 @@ class TrafficRAGSystem:
         
         if 'hour' in features:
             hour = features['hour']
-            if 7 <= hour <= 9:
+            if hour in Config.RUSH_HOUR_MORNING:
                 explanation_parts.append("Morning rush hour contributes to slower traffic.")
-            elif 16 <= hour <= 18:
+            elif hour in Config.RUSH_HOUR_EVENING:
                 explanation_parts.append("Evening rush hour contributes to slower traffic.")
         
         # Retrieve contextual knowledge

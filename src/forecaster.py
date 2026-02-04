@@ -209,7 +209,7 @@ class HybridTrafficForecaster:
             avg_speed = float(np.mean(latest_prediction))
             features = {
                 'hour': forecast_timestamps[0].hour,
-                'is_rush_hour': forecast_timestamps[0].hour in [7, 8, 9, 16, 17, 18],
+                'is_rush_hour': forecast_timestamps[0].hour in Config.RUSH_HOURS,
                 'is_weekend': forecast_timestamps[0].weekday() >= 5
             }
             result['explanation'] = self.rag_system.explain_prediction(avg_speed, features)

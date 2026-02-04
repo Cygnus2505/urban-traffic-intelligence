@@ -108,7 +108,7 @@ class ChicagoTrafficCollector:
                 
                 # Rush hour peaks
                 rush_hour_factor = 1.0
-                if hour in [7, 8, 9] or hour in [16, 17, 18]:
+                if hour in Config.RUSH_HOURS:
                     rush_hour_factor = 1.5
                 
                 # Add some randomness

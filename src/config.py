@@ -42,6 +42,11 @@ class Config:
     EPOCHS = 50
     LEARNING_RATE = 0.001
     
+    # Traffic patterns
+    RUSH_HOUR_MORNING = [7, 8, 9]
+    RUSH_HOUR_EVENING = [16, 17, 18]
+    RUSH_HOURS = [7, 8, 9, 16, 17, 18]
+    
     # Data sources
     CHICAGO_TRAFFIC_API = "https://data.cityofchicago.org/resource/8v9j-bter.json"
     

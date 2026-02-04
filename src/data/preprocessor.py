@@ -5,6 +5,8 @@ from typing import Tuple, List, Optional
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import logging
 
+from ..config import Config
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -61,7 +63,7 @@ class TrafficDataPreprocessor:
         """
         # Forward fill for time series data
         if 'timestamp' in df.columns:
-            df = df.fillna(method='ffill')
+            df = df.ffill()
         
         # Fill remaining with median
         numeric_columns = df.select_dtypes(include=[np.number]).columns
@@ -98,7 +100,7 @@ class TrafficDataPreprocessor:
         df['dow_cos'] = np.cos(2 * np.pi * df['day_of_week'] / 7)
         
         # Rush hour indicator
-        df['is_rush_hour'] = df['hour'].isin([7, 8, 9, 16, 17, 18]).astype(int)
+        df['is_rush_hour'] = df['hour'].isin(Config.RUSH_HOURS).astype(int)
         
         return df
     
