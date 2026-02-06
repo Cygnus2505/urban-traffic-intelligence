@@ -17,10 +17,16 @@ class QdrantRetriever:
     """Manages vector storage and retrieval using Qdrant"""
     
     def __init__(self):
-        self.client = QdrantClient(
-            host=settings.api_host if settings.qdrant_host == "qdrant" else settings.qdrant_host,
-            port=settings.qdrant_port
-        )
+        if settings.qdrant_url:
+            self.client = QdrantClient(
+                url=settings.qdrant_url,
+                api_key=settings.qdrant_api_key
+            )
+        else:
+            self.client = QdrantClient(
+                host=settings.api_host if settings.qdrant_host == "qdrant" else settings.qdrant_host,
+                port=settings.qdrant_port
+            )
         self.collection_name = settings.qdrant_collection_name
         self.vector_size = 1536  # OpenAI text-embedding-3-small dimension
         

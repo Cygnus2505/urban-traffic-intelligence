@@ -1,3 +1,3 @@
 @echo off
 echo Starting Urban Traffic Intelligence API...
-.\venv\Scripts\uvicorn src.api.main:app --reload --port 8000
+.\venv\Scripts\uvicorn src.api.main:app --reload --port 8001

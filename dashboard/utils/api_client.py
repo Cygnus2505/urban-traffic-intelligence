@@ -4,7 +4,7 @@ from typing import Optional, Dict, Any, List
 from datetime import datetime
 
 class TrafficAPIClient:
-    def __init__(self, base_url: str = "http://localhost:8000"):
+    def __init__(self, base_url: str = "http://localhost:8001"):
         self.base_url = base_url
 
     def get_health(self) -> Dict[str, Any]:

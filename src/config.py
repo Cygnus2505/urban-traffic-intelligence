@@ -26,8 +26,10 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://postgres:postgres@localhost:5432/traffic_db"
     
     # Vector Database
-    qdrant_host: str = "localhost"
-    qdrant_port: int = 6333
+    qdrant_host: Optional[str] = "localhost"
+    qdrant_port: Optional[int] = 6333
+    qdrant_url: Optional[str] = None
+    qdrant_api_key: Optional[str] = None
     qdrant_collection_name: str = "traffic_documents"
     
     # OpenAI
