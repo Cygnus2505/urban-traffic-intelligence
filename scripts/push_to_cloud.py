@@ -21,22 +21,34 @@ def migrate_database():
         logger.error("CLOUD_DATABASE_URL not found in .env")
         return
 
-    logger.info("Connecting to local database...")
+    logger.info("Connecting to local and cloud databases...")
     local_engine = create_engine(local_url)
     cloud_engine = create_engine(cloud_url)
     
-    tables = ['traffic_congestion', 'traffic_incidents', 'rag_query_logs']
+    tables = [
+        'traffic_congestion', 
+        'traffic_crashes', 
+        'road_construction', 
+        'weather_data', 
+        'documents', 
+        'prediction_logs', 
+        'rag_query_logs'
+    ]
     
     for table in tables:
         try:
-            logger.info(f"Migrating table: {table}")
-            df = pd.read_sql_table(table, local_engine)
-            if not df.empty:
-                # Use 'append' if the schema is already created via init_database in the API
-                df.to_sql(table, cloud_engine, if_exists='append', index=False)
-                logger.info(f"Successfully migrated {len(df)} rows for {table}")
+            logger.info(f"Checking table: {table}")
+            # Use chunks for potentially large tables
+            rows_migrated = 0
+            for chunk in pd.read_sql_table(table, local_engine, chunksize=5000):
+                if not chunk.empty:
+                    chunk.to_sql(table, cloud_engine, if_exists='append', index=False)
+                    rows_migrated += len(chunk)
+            
+            if rows_migrated > 0:
+                logger.info(f"Successfully migrated {rows_migrated} rows for {table}")
             else:
-                logger.warning(f"Table {table} is empty. Skipping.")
+                logger.warning(f"Table {table} had no data to migrate.")
         except Exception as e:
             logger.error(f"Failed to migrate {table}: {e}")
 
@@ -83,7 +95,7 @@ def migrate_vectors():
 if __name__ == "__main__":
     import sys
     
-    print("\n🚀 Urban Traffic Intelligence - Cloud Migration Utility")
+    print("\n[MIGRATION] Urban Traffic Intelligence - Cloud Migration Utility")
     print("=====================================================")
     print("1. Migrate Database (PostgreSQL -> Supabase)")
     print("2. Migrate Vectors (Local Qdrant -> Qdrant Cloud)")

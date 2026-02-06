@@ -3,8 +3,12 @@ import pandas as pd
 from typing import Optional, Dict, Any, List
 from datetime import datetime
 
+import os
+
 class TrafficAPIClient:
-    def __init__(self, base_url: str = "http://localhost:8001"):
+    def __init__(self, base_url: Optional[str] = None):
+        if not base_url:
+            base_url = os.getenv("TRAFFIC_API_BASE_URL", "http://localhost:8001")
         self.base_url = base_url
 
     def get_health(self) -> Dict[str, Any]:
