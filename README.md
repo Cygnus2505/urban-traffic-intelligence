@@ -2,7 +2,7 @@
 title: Urban Traffic Intelligence
 emoji: 🚦
 colorFrom: blue
-colorTo: Indigo
+colorTo: indigo
 sdk: docker
 pinned: false
 ---
