@@ -1,3 +1,12 @@
+---
+title: Urban Traffic Intelligence
+emoji: 🚦
+colorFrom: blue
+colorTo: Indigo
+sdk: docker
+pinned: false
+---
+
 # Urban Traffic Intelligence Platform
 
 The Urban Traffic Intelligence Platform is a comprehensive system designed to provide real-time traffic monitoring, incident analysis, and predictive forecasting for the city of Chicago. It integrates Retrieval-Augmented Generation (RAG) with machine learning models to deliver actionable insights and data-driven predictions.
