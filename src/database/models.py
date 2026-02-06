@@ -52,31 +52,31 @@ class TrafficCrash(Base):
     __tablename__ = "traffic_crashes"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    crash_record_id = Column(String(50), unique=True, index=True)
+    crash_record_id = Column(String(256), unique=True, index=True)
     
     # Location
     street_name = Column(String(255))
-    street_direction = Column(String(50))
+    street_direction = Column(String(100))
     latitude = Column(Float)
     longitude = Column(Float)
-    beat_of_occurrence = Column(String(20))
+    beat_of_occurrence = Column(String(50))
     
     # Crash details
     crash_date = Column(DateTime, nullable=False, index=True)
-    crash_type = Column(String(100))
-    primary_cause = Column(String(255))
-    secondary_cause = Column(String(255))
+    crash_type = Column(String(255))
+    primary_cause = Column(String(500))
+    secondary_cause = Column(String(500))
     
     # Conditions
-    weather_condition = Column(String(100))
-    lighting_condition = Column(String(100))
-    road_condition = Column(String(100))
-    traffic_control_device = Column(String(100))
+    weather_condition = Column(String(255))
+    lighting_condition = Column(String(255))
+    road_condition = Column(String(255))
+    traffic_control_device = Column(String(255))
     
     # Impact
     injuries_total = Column(Integer, default=0)
     injuries_fatal = Column(Integer, default=0)
-    damage = Column(String(100))
+    damage = Column(String(255))
     
     # Description (for RAG)
     crash_description = Column(Text)
@@ -154,14 +154,14 @@ class Document(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     
     doc_type = Column(String(50), index=True)  # incident, construction, bulletin
-    source_id = Column(String(100))  # Reference to original record
+    source_id = Column(String(256))  # Reference to original record (crash IDs are 128 chars)
     
     title = Column(String(500))
     content = Column(Text, nullable=False)
     
     # Metadata
     created_date = Column(DateTime)
-    location = Column(String(255))
+    location = Column(String(500))
     latitude = Column(Float)
     longitude = Column(Float)
     

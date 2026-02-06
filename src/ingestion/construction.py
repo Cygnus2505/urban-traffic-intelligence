@@ -35,6 +35,9 @@ class RoadConstructionIngester:
         
         if self.app_token:
             params.append(f"$$app_token={self.app_token}")
+        
+        # Order by most recent first
+        params.append("$order=applicationstartdate DESC")
             
         return url + "?" + "&".join(params)
     
@@ -47,9 +50,12 @@ class RoadConstructionIngester:
         
         where_clauses = []
         
+        # Only get records with street location info
+        where_clauses.append("streetname IS NOT NULL")
+        
         if active_only:
             today = datetime.now().strftime('%Y-%m-%d')
-            where_clauses.append(f"enddate >= '{today}'")
+            where_clauses.append(f"applicationexpiredate >= '{today}'")
             
         where_clause = " AND ".join(where_clauses) if where_clauses else None
         
@@ -95,20 +101,21 @@ class RoadConstructionIngester:
         
         df = pd.DataFrame(records)
         
-        # Column mapping (adjust based on actual API response)
+        # Column mapping for Transportation Department Permits dataset (pubx-yq2d)
         column_mapping = {
-            'permit_': 'permit_id',
+            'applicationnumber': 'permit_id',
             'streetname': 'street_name',
-            'street_nam': 'street_name',
-            'fromstreet': 'from_street',
-            'tostreet': 'to_street',
+            'streetnumberfrom': 'from_street',
+            'streetnumberto': 'to_street',
             'latitude': 'latitude',
             'longitude': 'longitude',
-            'worktype': 'work_type',
-            'work_descr': 'work_description',
-            'contractor': 'contractor',
-            'startdate': 'start_date',
-            'enddate': 'end_date'
+            'worktypedescription': 'work_type',
+            'comments': 'work_description',
+            'primarycontactlast': 'contractor',
+            'applicationstartdate': 'start_date',
+            'applicationexpiredate': 'end_date',
+            'direction': 'direction',
+            'suffix': 'suffix'
         }
         
         existing_cols = {k: v for k, v in column_mapping.items() if k in df.columns}
@@ -150,22 +157,36 @@ class RoadConstructionIngester:
         
         parts = []
         
-        # Location
+        # Location - build full street address
         if pd.notna(row.get('street_name')):
-            location = row['street_name']
-            if pd.notna(row.get('from_street')) and pd.notna(row.get('to_street')):
-                location += f" between {row['from_street']} and {row['to_street']}"
-            parts.append(f"Road construction on {location}")
+            location = ""
+            if pd.notna(row.get('from_street')):
+                location += str(row['from_street']) + " "
+            if pd.notna(row.get('direction')):
+                location += str(row['direction']) + " "
+            location += str(row['street_name'])
+            if pd.notna(row.get('suffix')):
+                location += " " + str(row['suffix'])
+            parts.append(f"Road work at {location}")
         
         # Work type
         if pd.notna(row.get('work_type')):
             parts.append(f"Type of work: {row['work_type']}")
         
+        # Original description/comments
+        if pd.notna(row.get('work_description')) and row.get('work_description'):
+            original_desc = str(row['work_description'])
+            if original_desc and original_desc != row.get('work_type', ''):
+                parts.append(f"Details: {original_desc}")
+        
         # Timeline
         if pd.notna(row.get('start_date')) and pd.notna(row.get('end_date')):
-            start = row['start_date'].strftime('%B %d, %Y')
-            end = row['end_date'].strftime('%B %d, %Y')
-            parts.append(f"Duration: {start} to {end}")
+            try:
+                start = row['start_date'].strftime('%B %d, %Y')
+                end = row['end_date'].strftime('%B %d, %Y')
+                parts.append(f"Duration: {start} to {end}")
+            except:
+                pass
         
         # Contractor
         if pd.notna(row.get('contractor')):

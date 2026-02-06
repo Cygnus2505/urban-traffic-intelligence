@@ -1,263 +1,83 @@
 # Urban Traffic Intelligence Platform
 
-A production-grade ML system that combines **RAG (Retrieval-Augmented Generation)** and **predictive models** to provide traffic forecasting, incident analysis, and explainable insights for Chicago.
+The Urban Traffic Intelligence Platform is a comprehensive system designed to provide real-time traffic monitoring, incident analysis, and predictive forecasting for the city of Chicago. It integrates Retrieval-Augmented Generation (RAG) with machine learning models to deliver actionable insights and data-driven predictions.
 
-##  Features
+## Core Capabilities
 
-- **Ask Questions (RAG)**: Query traffic patterns with natural language
-  - "Why is congestion high near downtown today?"
-  - "What were the top incident causes last week?"
-  
-- **Forecast + Charts (ML)**: Predict traffic conditions
-  - Congestion forecasting by zone/segment
-  - Travel time predictions
-  - Trend visualization
+- **Traffic Analysis (RAG)**: Utilize natural language processing to query traffic patterns, incident causes, and historical trends.
+- **Congestion Forecasting**: Generate forecasts for specific road segments using trained machine learning models.
+- **Data Visualization**: Interactive map and charts for real-time traffic monitoring and trend analysis.
+- **System Monitoring**: Performance tracking for both machine learning models and API health.
 
-- **Monitoring & Alerts**: Production-grade observability
-  - Model drift detection
-  - RAG quality metrics (hallucination rate, citation coverage)
-  - System health dashboards
+## System Architecture
 
-##  Architecture
+The platform follows a modular architecture:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     User Interface                               │
-│                 (Streamlit Dashboard)                            │
-└─────────────────────────┬───────────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      FastAPI Service                             │
-│    /rag/ask    /predict    /charts    /metrics    /health       │
-└──────┬──────────────┬──────────────┬────────────────────────────┘
-       │              │              │
-       ▼              ▼              ▼
-┌────────────┐  ┌───────────┐  ┌──────────────┐
-│  RAG       │  │   ML      │  │  Monitoring  │
-│  Pipeline  │  │  Models   │  │  & Metrics   │
-└──────┬─────┘  └─────┬─────┘  └──────┬───────┘
-       │              │               │
-       ▼              ▼               ▼
-┌────────────┐  ┌───────────┐  ┌──────────────┐
-│  Qdrant    │  │  MLflow   │  │  Prometheus  │
-│ (Vectors)  │  │ (Models)  │  │  + Grafana   │
-└────────────┘  └───────────┘  └──────────────┘
-       │              │
-       └──────┬───────┘
-              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      PostgreSQL                                  │
-│   Traffic Data │ Incidents │ Weather │ Documents │ Logs         │
-└─────────────────────────────────────────────────────────────────┘
-              ▲
-              │
-┌─────────────────────────────────────────────────────────────────┐
-│                   Ingestion Pipeline                             │
-│    Chicago Data Portal │ OpenWeatherMap │ Scheduled Tasks       │
-└─────────────────────────────────────────────────────────────────┘
-```
+- **Frontend**: Streamlit-based dashboard for user interaction and visualization.
+- **Backend API**: FastAPI service managing data retrieval, model predictions, and RAG operations.
+- **AI/ML Layer**: 
+  - XGBoost for congestion forecasting.
+  - OpenAI GPT-4 and Qdrant for retrieval-augmented generation.
+- **Storage Layer**: PostgreSQL for structured data; Qdrant for vector storage.
+- **Data Pipeline**: Automated ingestion from Chicago Data Portal and weather services.
 
-##  Tech Stack
-
-| Component | Technology |
-|-----------|------------|
-| Language | Python 3.11+ |
-| API | FastAPI |
-| Database | PostgreSQL |
-| Vector DB | Qdrant |
-| ML Framework | XGBoost, scikit-learn |
-| LLM | OpenAI GPT-4o-mini |
-| Embeddings | OpenAI text-embedding-3-small |
-| Experiment Tracking | MLflow |
-| Orchestration | Prefect |
-| Monitoring | Prometheus + Grafana |
-| Dashboard | Streamlit |
-| Containerization | Docker |
-| CI/CD | GitHub Actions |
-
-##  Data Sources
-
-| Source | Type | Description |
-|--------|------|-------------|
-| Chicago Traffic Tracker | Structured | Historical congestion by segment |
-| Traffic Crashes | Structured + Text | Incident records with descriptions |
-| Road Construction | Structured + Text | Active roadwork permits |
-| OpenWeatherMap | Structured | Current + forecast weather |
-
-##  Quick Start
+## Technical Configuration
 
 ### Prerequisites
+- Python 3.11 or higher
+- Docker and Docker Compose
+- OpenAI API Key
 
-- Docker & Docker Compose
-- Python 3.11+
-- OpenAI API key (for embeddings/LLM)
-- Chicago Data Portal app token (optional, increases rate limits)
+### Initial Setup
 
-### 1. Clone and Configure
+1. **Repository Configuration**
+   ```bash
+   git clone https://github.com/Cygnus2505/urban-traffic-intelligence.git
+   cd urban-traffic-intelligence
+   ```
 
-```bash
-git clone https://github.com/yourusername/urban-traffic-intelligence.git
-cd urban-traffic-intelligence
+2. **Environment Variables**
+   Create a `.env` file based on the provided `.env.example`. Ensure all database connections and API keys are specified.
 
-# Copy environment template
-cp .env.example .env
+3. **Service Deployment**
+   ```bash
+   docker-compose up -d
+   ```
 
-# Edit .env with your API keys
-```
+4. **Data Ingestion**
+   Initialize the data pipeline to populate the databases:
+   ```bash
+   python -m src.ingestion.pipeline --days 7
+   ```
 
-### 2. Start Services
+## Application Access
 
-```bash
-# Start all services
-docker-compose up -d
-
-# Check status
-docker-compose ps
-```
-
-### 3. Initialize Database & Ingest Data
-
-```bash
-# Run ingestion pipeline
-docker-compose exec api python -m src.ingestion.pipeline --days 7
-```
-
-### 4. Access Services
-
-| Service | URL |
-|---------|-----|
-| API | http://localhost:8000 |
-| API Docs | http://localhost:8000/docs |
+| Component | Access URL |
+|-----------|------------|
 | Dashboard | http://localhost:8501 |
-| MLflow | http://localhost:5000 |
-| Grafana | http://localhost:3000 |
-| Prometheus | http://localhost:9090 |
+| API Docs | http://localhost:8000/docs |
+| Monitoring | http://localhost:3000 (Grafana) |
 
-##  Project Structure
+## Development and Testing
 
-```
-urban-traffic-intelligence/
-├── src/
-│   ├── ingestion/          # Data ingestion modules
-│   │   ├── traffic_data.py
-│   │   ├── incidents.py
-│   │   ├── weather.py
-│   │   ├── construction.py
-│   │   └── pipeline.py
-│   ├── features/           # Feature engineering
-│   │   └── feature_pipeline.py
-│   ├── models/             # ML model training
-│   │   ├── train.py
-│   │   ├── predict.py
-│   │   └── evaluate.py
-│   ├── rag/                # RAG pipeline
-│   │   ├── chunker.py
-│   │   ├── embedder.py
-│   │   ├── retriever.py
-│   │   └── generator.py
-│   ├── guardrails/         # Quality controls
-│   │   └── validators.py
-│   ├── api/                # FastAPI service
-│   │   ├── main.py
-│   │   └── routes/
-│   ├── monitoring/         # Drift & metrics
-│   │   ├── drift.py
-│   │   └── metrics.py
-│   ├── database/           # Database models
-│   └── config.py
-├── dashboard/              # Streamlit app
-├── tests/                  # Test suite
-├── data/                   # Data storage
-├── .github/workflows/      # CI/CD
-├── docker-compose.yml
-├── Dockerfile
-└── requirements.txt
-```
-
-##  Development
-
-### Local Setup (without Docker)
-
+### Testing
+Run the test suite using pytest:
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or: venv\Scripts\activate  # Windows
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Start PostgreSQL and Qdrant (via Docker)
-docker-compose up -d postgres qdrant
-
-# Run API locally
-uvicorn src.api.main:app --reload
+pytest tests/
 ```
 
-### Running Tests
-
+### Manual Ingestion
+Specific data ranges can be ingested manually via the pipeline script:
 ```bash
-pytest tests/ -v
+python -m src.ingestion.pipeline --start-date YYYY-MM-DD --end-date YYYY-MM-DD
 ```
 
-### Ingestion Commands
+## Project Structure
 
-```bash
-# Full ingestion (last 7 days)
-python -m src.ingestion.pipeline
+- `src/`: Core application logic (API, Ingestion, Models, RAG).
+- `dashboard/`: Streamlit application files.
+- `data/`: Local storage for raw and processed datasets.
+- `tests/`: Integration and unit tests.
 
-# Custom date range
-python -m src.ingestion.pipeline --start-date 2025-01-01 --end-date 2025-01-31
-
-# Skip specific sources
-python -m src.ingestion.pipeline --skip-weather --skip-construction
-
-# Use synthetic weather (for testing)
-python -m src.ingestion.pipeline --synthetic-weather
-```
-
-##  API Endpoints
-
-### RAG
-
-```bash
-# Ask a question
-curl -X POST http://localhost:8000/rag/ask \
-  -H "Content-Type: application/json" \
-  -d '{"query": "Why is there congestion on I-90?"}'
-```
-
-### Predictions
-
-```bash
-# Get traffic forecast
-curl -X POST http://localhost:8000/predict \
-  -H "Content-Type: application/json" \
-  -d '{"segment_id": "123", "horizon_hours": 6}'
-```
-
-### Charts
-
-```bash
-# Get chart data
-curl "http://localhost:8000/charts/zone?zone_id=5&days=30"
-```
-
-##  Learning Outcomes
-
-Building this project teaches:
-
-- **MLOps**: Model versioning, experiment tracking, automated retraining
-- **RAG**: Document chunking, vector search, prompt engineering, guardrails
-- **Data Engineering**: ETL pipelines, data quality, feature engineering
-- **Production ML**: API design, monitoring, drift detection
-- **DevOps**: Docker, CI/CD, infrastructure as code
-
-##  License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
-##  Contributing
-
-Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+## Acknowledgments
+Data provided by the Chicago Data Portal.

@@ -99,19 +99,18 @@ class TrafficCongestionIngester:
         
         df = pd.DataFrame(records)
         
-        # Rename columns to match our schema
+        # Rename columns to match our schema (Chicago Data Portal sxs8-h27x keys)
         column_mapping = {
-            'segmentid': 'segment_id',
+            'segment_id': 'segment_id',
             'street': 'street',
             'direction': 'direction',
-            'fromstreet': 'from_street',
-            'tostreet': 'to_street',
-            'current_speed': 'current_speed',
-            'expected_speed': 'expected_speed', 
-            'start_lat': 'start_lat',
-            'start_lon': 'start_lon',
-            'end_lat': 'end_lat',
-            'end_lon': 'end_lon',
+            'from_street': 'from_street',
+            'to_street': 'to_street',
+            'speed': 'current_speed',  # Historical dataset uses 'speed'
+            'start_latitude': 'start_lat',
+            'start_longitude': 'start_lon',
+            'end_latitude': 'end_lat',
+            'end_longitude': 'end_lon',
             'time': 'timestamp'
         }
         
@@ -134,7 +133,13 @@ class TrafficCongestionIngester:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
         
         # Calculate congestion level
-        if 'current_speed' in df.columns and 'expected_speed' in df.columns:
+        if 'current_speed' in df.columns:
+            if 'expected_speed' not in df.columns or df['expected_speed'].isnull().all():
+                # If expected_speed is missing, assume a default of 30 mph for normalization
+                # or just use current_speed directly for training if logic allows.
+                # Let's set expected_speed to 30 as a placeholder if missing.
+                df['expected_speed'] = 30.0
+            
             df['congestion_level'] = df['current_speed'] / df['expected_speed'].replace(0, 1)
         
         # Select only columns we need

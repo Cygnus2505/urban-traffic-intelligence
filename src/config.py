@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     # Chicago Data Portal Dataset IDs
     traffic_congestion_dataset_id: str = "sxs8-h27x"  # Historical Congestion
     traffic_crashes_dataset_id: str = "85ca-t3if"     # Traffic Crashes
-    road_construction_dataset_id: str = "vt7k-8btp"   # Road Construction
+    road_construction_dataset_id: str = "pubx-yq2d"   # Transportation Department Permits
     
     # Weather API
     openweather_api_key: Optional[str] = None
