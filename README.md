@@ -66,7 +66,12 @@ The project is architected to run on standard free-tier services:
 3.  **API**: Hugging Face Spaces (Docker SDK).
 4.  **Dashboard**: Streamlit Community Cloud.
 
-## 💻 Local Development
+## � Future Work: Road Closure Simulation
+We aim to evolve this platform into a **digital twin** of Chicago. Upcoming features include:
+- **Impact Analysis**: Simulating how closing a specific street (due to events or construction) redistributes traffic flow across the city.
+- **Congestion Heat Re-routing**: Using AI to suggest alternative routes to optimize the overall urban flow during peak hours.
+
+## �💻 Local Development
 1. Clone the repo.
 2. Setup environment variables in `.env` (refer to `.env.example`).
 3. Run `docker-compose up -d`.
