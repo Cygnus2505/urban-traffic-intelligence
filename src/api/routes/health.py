@@ -15,6 +15,7 @@ from prometheus_client import (
 from datetime import datetime
 
 from ...config import get_settings
+from ...monitoring.drift import DriftDetector
 
 router = APIRouter(tags=["Health & Monitoring"])
 
@@ -91,3 +92,13 @@ async def metrics():
         content=generate_latest(),
         media_type=CONTENT_TYPE_LATEST
     )
+
+
+@router.get("/monitoring/drift")
+async def get_model_drift():
+    """
+    Check for statistical drift in traffic data.
+    """
+    detector = DriftDetector()
+    report = detector.calculate_drift()
+    return report

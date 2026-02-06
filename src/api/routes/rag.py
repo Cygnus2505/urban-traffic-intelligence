@@ -11,7 +11,8 @@ from ...rag.chunker import DocumentChunker
 from ...rag.embedder import OpenAIEmbedder
 from ...rag.retriever import QdrantRetriever
 from ...rag.generator import RAGGenerator
-from ...database.models import get_session, Document, RAGQueryLog
+from ...monitoring.metrics import RAG_QUERY_TOTAL, RAG_FAITHFULNESS_SCORE
+from ...guardrails.validators import RAGGuardrail
 from ...config import get_settings
 
 settings = get_settings()
@@ -31,6 +32,8 @@ class RAGResponse(BaseModel):
     answer: str
     sources: List[Source]
     latency_ms: float
+    is_relevant: bool = True
+    faithfulness_score: float = 1.0
 
 class IngestionResponse(BaseModel):
     message: str
@@ -106,31 +109,66 @@ async def ask_question(request: RAGQuery):
     """
     start_time = datetime.now()
     
+    # 1. Relevance Guardrail
+    if not RAGGuardrail.is_relevant(request.query):
+        RAG_QUERY_TOTAL.labels(status="blocked", is_relevant="false").inc()
+        return {
+            "answer": "I'm sorry, I can only answer questions related to Chicago traffic, incidents, and roadwork. Please ask something about traffic conditions or crashes.",
+            "sources": [],
+            "latency_ms": 10,
+            "is_relevant": False,
+            "faithfulness_score": 0.0
+        }
+        
     try:
-        # Initialize components (could be dependency injected for performance)
+        # Initialize components
         embedder = OpenAIEmbedder()
         retriever = QdrantRetriever()
         generator = RAGGenerator()
         
-        # 1. Embed query (handling clean up inside embedder)
+        # 2. Embed query
         query_embedding = embedder.embed_texts([request.query])[0]
         
-        # 2. Retrieve relevant chunks
+        # 3. Retrieve relevant chunks
         context_chunks = retriever.search(query_embedding, top_k=5)
         
-        # 3. Generate answer
+        # 4. Generate answer
         result = generator.generate_answer(request.query, context_chunks)
+        
+        # 5. Faithfulness Guardrail
+        source_texts = [s["content_snippet"] for s in result["sources"]]
+        faithfulness = RAGGuardrail.validate_response_faithfulness(result["answer"], source_texts)
+        
+        # Track metrics
+        RAG_QUERY_TOTAL.labels(status="success", is_relevant="true").inc()
+        RAG_FAITHFULNESS_SCORE.observe(faithfulness)
         
         # Calculate latency
         latency_ms = (datetime.now() - start_time).total_seconds() * 1000
         
-        # Log query (async would be better)
-        # TODO: Add logging to database
+        # Log query to database
+        try:
+            session = get_session(settings.database_url)
+            log = RAGQueryLog(
+                query=request.query,
+                answer=result["answer"],
+                sources_count=len(result["sources"]),
+                latency_ms=latency_ms,
+                is_relevant=True,
+                faithfulness_score=faithfulness
+            )
+            session.add(log)
+            session.commit()
+            session.close()
+        except Exception as log_err:
+            logger.error(f"Failed to log RAG query: {log_err}")
         
         return {
             "answer": result["answer"],
             "sources": result["sources"],
-            "latency_ms": latency_ms
+            "latency_ms": latency_ms,
+            "is_relevant": True,
+            "faithfulness_score": round(faithfulness, 2)
         }
         
     except Exception as e:

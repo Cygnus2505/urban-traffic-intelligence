@@ -214,6 +214,8 @@ class RAGQueryLog(Base):
     
     # Quality metrics
     retrieval_score = Column(Float)
+    faithfulness_score = Column(Float)
+    is_relevant = Column(Boolean, default=True)
     has_citations = Column(Boolean)
     abstained = Column(Boolean, default=False)
     

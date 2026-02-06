@@ -53,11 +53,20 @@ class TrafficAPIClient:
             return {"metrics": {}, "segments": [], "error": str(e)}
 
     def get_all_segments(self) -> List[Dict[str, Any]]:
+        """Fetch all unique segments for dropdowns"""
         try:
             response = requests.get(f"{self.base_url}/data/segments")
-            return response.json()
-        except Exception as e:
+            return response.json() if response.status_code == 200 else []
+        except:
             return []
+
+    def get_drift(self) -> Dict[str, Any]:
+        """Fetch model drift report"""
+        try:
+            response = requests.get(f"{self.base_url}/monitoring/drift")
+            return response.json() if response.status_code == 200 else {}
+        except:
+            return {}
 
     def get_raw_traffic(self, limit: int = 100) -> pd.DataFrame:
         # Since we don't have a direct /traffic endpoint yet, we might need to add one or query DB

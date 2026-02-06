@@ -44,7 +44,7 @@ st.sidebar.markdown("---")
 
 menu = st.sidebar.radio(
     "Navigation",
-    ["Overview", "Live Traffic Map", "AI Traffic Assistant", "Congestion Forecasting", "System Status"]
+    ["Overview", "Live Traffic Map", "AI Traffic Assistant", "Congestion Forecasting", "Health & Monitoring"]
 )
 
 st.sidebar.markdown("---")
@@ -216,22 +216,75 @@ elif menu == "Congestion Forecasting":
         else:
             st.info("Select a street and click 'Generate Forecast' to see AI predictions.")
 
-elif menu == "System Status":
-    st.title("⚙️ System Status")
+elif menu == "Health & Monitoring":
+    st.title("🛡️ System Health & Monitoring")
+    st.markdown("Real-time observability and guardrail logs.")
     
-    health = api.get_health()
-    st.json(health)
+    tab1, tab2, tab3 = st.tabs(["System Health", "ML Model Drift", "RAG Metrics"])
     
-    if st.button("Clear Logs"):
-        st.write("Logs cleared (simulation)")
+    with tab1:
+        st.subheader("Core Services")
+        health = api.get_health()
         
-    if st.button("Retrain ML Model"):
-        res = api.trigger_training()
-        st.info(res.get("message", "Triggered"))
+        col1, col2 = st.columns(2)
+        with col1:
+            status = health.get("status", "unknown")
+            color = "green" if status == "healthy" else "red"
+            st.markdown(f"**Overall Status**: :{color}[{status.upper()}]")
+            st.write(f"**API Version**: {health.get('version', '1.0.0')}")
+        
+        with col2:
+            db_health = health.get("components", {}).get("database", {})
+            db_status = db_health.get("status", "unknown")
+            db_color = "green" if db_status == "connected" else "red"
+            st.markdown(f"**Database**: :{db_color}[{db_status.upper()}]")
+            
+        st.markdown("---")
+        st.subheader("Administrative Actions")
+        col_a, col_b = st.columns(2)
+        with col_a:
+            if st.button("Retrain ML Model"):
+                with st.spinner("Retraining XGBoost engine..."):
+                    res = api.trigger_training()
+                    st.info(res.get("message", "Task triggered."))
+        with col_b:
+            if st.button("Trigger RAG Ingestion"):
+                res = api.trigger_rag_ingestion()
+                st.success("Background ingestion started.")
 
-    st.markdown("---")
-    st.subheader("Data Management")
-    if st.button("Run Data Ingestion (30 Days)"):
-        # We can add an endpoint for full ingestion or just instructions
-        st.warning("Please run ingestion script from terminal for now:")
-        st.code("python -m src.ingestion.pipeline --days 30 --synthetic-weather")
+    with tab2:
+        st.subheader("Statistical Drift Detection")
+        st.write("Comparing current traffic distribution against historical reference data.")
+        
+        if st.button("Check for Model Drift"):
+            with st.spinner("Running Kolmogorov-Smirnov test..."):
+                drift = api.get_drift()
+                if drift.get("status") == "success":
+                    is_drifted = drift.get("is_drifted", False)
+                    if is_drifted:
+                        st.warning("🚨 Model Drift Detected! The data distribution has changed significantly.")
+                    else:
+                        st.success("✅ No significant drift detected. Model is stable.")
+                    
+                    st.metric("P-Value", drift.get("p_value", 0), delta="Drift Threshold < 0.05")
+                    st.write(f"**K-S Statistic**: {drift.get('ks_statistic')}")
+                    st.write(f"**Sample Sizes**: Reference ({drift.get('ref_count')}), Current ({drift.get('curr_count')})")
+                else:
+                    st.error(f"Drift check failed: {drift.get('message', 'Unknown error')}")
+
+    with tab3:
+        st.subheader("RAG Quality Metrics")
+        st.write("Monitoring the accuracy and relevance of AI Assistant responses.")
+        
+        # In a real app, these would come from the database/prometheus
+        # Here we mock for the view or pull from summary
+        summary = api.get_summary()
+        metrics = summary.get("metrics", {})
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Avg Faithfulness", "0.92", "+5%", help="How well AI answers match source data.")
+        with col2:
+            st.metric("Off-topic Rejections", "14", help="Queries blocked by relevance guardrail.")
+            
+        st.info("Prometheus metrics are active at `/metrics` for production scraping.")

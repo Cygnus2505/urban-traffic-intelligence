@@ -13,6 +13,8 @@ from sqlalchemy.dialects.postgresql import insert
 
 from ..config import get_settings
 from ..database.models import TrafficCongestion, init_database
+from ..guardrails.validators import TrafficDataValidator
+from ..monitoring.metrics import DATA_VALIDATION_ERRORS
 
 settings = get_settings()
 
@@ -152,6 +154,17 @@ class TrafficCongestionIngester:
         
         df = df[[c for c in final_cols if c in df.columns]]
         
+        # Apply guardrails
+        records_before = len(df)
+        mask = df.apply(lambda x: TrafficDataValidator.validate_congestion(x.to_dict()), axis=1)
+        df = df[mask].copy()
+        
+        records_after = len(df)
+        if records_before > records_after:
+            diff = records_before - records_after
+            logger.warning(f"Guardrails filtered out {diff} invalid records")
+            DATA_VALIDATION_ERRORS.labels(source="traffic_congestion").inc(diff)
+            
         return df
     
     def save_to_database(self, df: pd.DataFrame, database_url: str) -> int:

@@ -7,6 +7,7 @@ from typing import Optional
 from datetime import datetime, timedelta
 from loguru import logger
 
+from ...monitoring.metrics import PREDICTION_LATENCY, PREDICTION_VALUE
 from ...models.predictor import TrafficPredictor
 from ...models.trainer import TrafficModelTrainer
 
@@ -57,8 +58,14 @@ async def predict_traffic(request: PredictionRequest):
     
     # Ensure time is in future or now (model might support past, but conceptual goal is future)
     
+    start_time = datetime.now()
     try:
         score = predictor.predict(request.segment_id, target_time)
+        
+        # Track metrics
+        latency = (datetime.now() - start_time).total_seconds()
+        PREDICTION_LATENCY.observe(latency)
+        PREDICTION_VALUE.observe(score)
         
         return {
             "segment_id": request.segment_id,
