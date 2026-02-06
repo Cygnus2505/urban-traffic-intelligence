@@ -7,86 +7,64 @@ sdk: docker
 pinned: false
 ---
 
-# Urban Traffic Intelligence Platform
+# Urban Traffic Intelligence Platform 🚦
+
+[![Live App](https://img.shields.io/badge/Streamlit-Live%20App-FF4B4B?style=for-the-badge&logo=Streamlit)](https://chicago-traffic-ai.streamlit.app/)
+[![API Status](https://img.shields.io/badge/Hugging%20Face-Active%20API-yellow?style=for-the-badge&logo=HuggingFace)](https://huggingface.co/spaces/Cygnus2505/UrbanTraffic)
 
 The Urban Traffic Intelligence Platform is a comprehensive system designed to provide real-time traffic monitoring, incident analysis, and predictive forecasting for the city of Chicago. It integrates Retrieval-Augmented Generation (RAG) with machine learning models to deliver actionable insights and data-driven predictions.
 
-## Core Capabilities
+## 🚀 Core Capabilities
 
-- **Traffic Analysis (RAG)**: Utilize natural language processing to query traffic patterns, incident causes, and historical trends.
-- **Congestion Forecasting**: Generate forecasts for specific road segments using trained machine learning models.
-- **Data Visualization**: Interactive map and charts for real-time traffic monitoring and trend analysis.
-- **System Monitoring**: Performance tracking for both machine learning models and API health.
+- **Traffic Analysis (RAG)**: Natural language querying of traffic patterns and incident causes.
+- **Congestion Forecasting**: Street-specific forecasts (24h horizon) using XGBoost.
+- **Real-time Map**: Interactive topographical view with live congestion overlays.
+- **System Guardrails**: Automated data validation and model drift monitoring.
 
-## System Architecture
+## ☁️ Cloud Deployment (Free Tier)
 
-The platform follows a modular architecture:
+This project is optimized for deployment on free-tier cloud services:
 
-- **Frontend**: Streamlit-based dashboard for user interaction and visualization.
-- **Backend API**: FastAPI service managing data retrieval, model predictions, and RAG operations.
-- **AI/ML Layer**: 
-  - XGBoost for congestion forecasting.
-  - OpenAI GPT-4 and Qdrant for retrieval-augmented generation.
-- **Storage Layer**: PostgreSQL for structured data; Qdrant for vector storage.
-- **Data Pipeline**: Automated ingestion from Chicago Data Portal and weather services.
+### 1. Database & Vector Store
+- **Supabase (PostgreSQL)**: Host for structured traffic data. Use the **Session Pooler** (port 6543) for IPv4 compatibility.
+- **Qdrant Cloud (Vector DB)**: Host for RAG document embeddings.
 
-## Technical Configuration
+### 2. Backend API
+- **Hugging Face Spaces**: Containerized deployment of the FastAPI backend.
+- **Configuration**: Add your `.env` variables as "Secrets" in HF Space settings.
 
-### Prerequisites
-- Python 3.11 or higher
-- Docker and Docker Compose
-- OpenAI API Key
+### 3. Frontend Dashboard
+- **Streamlit Community Cloud**: Host for the interactive dashboard.
+- **Connection**: Set `TRAFFIC_API_BASE_URL` in Streamlit Secrets to point to your HF Space.
 
-### Initial Setup
+## 🛠️ Local Development
 
-1. **Repository Configuration**
+1. **Setup Repository**
    ```bash
    git clone https://github.com/Cygnus2505/urban-traffic-intelligence.git
    cd urban-traffic-intelligence
    ```
 
-2. **Environment Variables**
-   Create a `.env` file based on the provided `.env.example`. Ensure all database connections and API keys are specified.
+2. **Environment Configuration**
+   Copy `.env.example` to `.env` and fill in:
+   - `OPENAI_API_KEY` (Required for RAG)
+   - Database credentials (Local Postgres or Supabase)
 
-3. **Service Deployment**
+3. **Run with Docker**
    ```bash
    docker-compose up -d
    ```
 
-4. **Data Ingestion**
-   Initialize the data pipeline to populate the databases:
+4. **Initialize Data**
    ```bash
    python -m src.ingestion.pipeline --days 7
+   python scripts/push_to_cloud.py  # To sync local data to cloud
    ```
 
-## Application Access
+## 📊 Performance & Monitoring
+- **Forecasting**: XGBoost Regressor with street-level sensitivity (R2: 0.33).
+- **RAG Knowledge**: 20,467 processed documents including crashes and construction alerts.
+- **Observability**: Prometheus metrics integrated for latency and drift tracking.
 
-| Component | Access URL |
-|-----------|------------|
-| Dashboard | http://localhost:8501 |
-| API Docs | http://localhost:8000/docs |
-| Monitoring | http://localhost:3000 (Grafana) |
-
-## Development and Testing
-
-### Testing
-Run the test suite using pytest:
-```bash
-pytest tests/
-```
-
-### Manual Ingestion
-Specific data ranges can be ingested manually via the pipeline script:
-```bash
-python -m src.ingestion.pipeline --start-date YYYY-MM-DD --end-date YYYY-MM-DD
-```
-
-## Project Structure
-
-- `src/`: Core application logic (API, Ingestion, Models, RAG).
-- `dashboard/`: Streamlit application files.
-- `data/`: Local storage for raw and processed datasets.
-- `tests/`: Integration and unit tests.
-
-## Acknowledgments
-Data provided by the Chicago Data Portal.
+---
+Data provided by the [Chicago Data Portal](https://data.cityofchicago.org/).
